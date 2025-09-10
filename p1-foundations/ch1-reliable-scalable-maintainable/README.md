@@ -4,9 +4,9 @@
 
 Write a notes API microservice (CRUD) in Node.js or Python.
 
-Think and define which means for the project to be reliable (for example: the system should not lost the date if the process fails).
+Think and define which means for the project to be reliable (for example: the system should not lost the data if the process fails).
 
-Try to write Escribe pruebas de resilience tests (kill the process, restart it, What happens? are the data preserved?).
+Try to write resilience tests (kill the process, restart it, What happens? are the data preserved?).
 
 ## Details
 
