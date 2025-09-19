@@ -3,63 +3,70 @@ const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 
 const app = express();
+
 const PORT = process.env.PORT || 3000;
-const DB_FILE = './notes.json';
+const DB_FILE = './data/notes.json';
+
+// Utility functions
+const loadNotesFromFile = () => {
+  if (!fs.existsSync(DB_FILE)) return {};
+  return JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
+};
+
+const saveNotesToFile = (notes) => {
+  fs.writeFileSync(DB_FILE, JSON.stringify(notes, null, 2));
+};
+
+const notes = loadNotesFromFile();
 
 app.use(express.json());
 
-// Función helper para leer y escribir notas
-function readNotes() {
-  if (!fs.existsSync(DB_FILE)) return [];
-  return JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
-}
-
-function writeNotes(notes) {
-  fs.writeFileSync(DB_FILE, JSON.stringify(notes, null, 2));
-}
-
-// GET /notes - obtener todas las notas
+// GET /notes - get all the notes
 app.get('/notes', (req, res) => {
-  res.json(readNotes());
+  res.json(notes);
 });
 
-// POST /notes - crear una nota
-app.post('/notes', (req, res) => {
-  const notes = readNotes();
-  const newNote = { id: uuidv4(), ...req.body };
-  notes.push(newNote);
-  writeNotes(notes);
-  res.status(201).json(newNote);
-});
-
-// PUT /notes/:id - actualizar una nota
-app.put('/notes/:id', (req, res) => {
-  let notes = readNotes();
-  const index = notes.findIndex(
-    (n) => n.id === req.params.id
-  );
-  if (index === -1)
-    return res
-      .status(404)
-      .json({ error: 'Note not found' });
-
-  notes[index] = { ...notes[index], ...req.body };
-  writeNotes(notes);
-  res.json(notes[index]);
-});
-
-// DELETE /notes/:id - borrar una nota
-app.delete('/notes/:id', (req, res) => {
-  let notes = readNotes();
-  const filtered = notes.filter(
-    (n) => n.id !== req.params.id
-  );
-  if (filtered.length === notes.length) {
-    return res
-      .status(404)
-      .json({ error: 'Note not found' });
+// GET /notes/:id - get a specific note by id
+app.get('/notes/:id', (req, res) => {
+  const { id } = req.params;
+  if (notes[id]) {
+    return res.json(notes[id]);
   }
-  writeNotes(filtered);
+
+  res.status(404).json({ message: 'Note not found' });
+});
+
+// POST /notes - create a new note
+app.post('/notes', (req, res) => {
+  const { content } = req.body;
+  const id = uuidv4();
+
+  notes[id] = { id, content };
+  saveNotesToFile(notes);
+
+  res.status(201).json(notes[id]);
+});
+
+// PUT /notes/:id - update a note by id
+app.put('/notes/:id', (req, res) => {
+  const { id } = req.params;
+  const { content } = req.body;
+
+  if (notes[id]) {
+    notes[id].content = content;
+    saveNotesToFile(notes);
+    return res.json(notes[id]);
+  }
+
+  res.status(404).json({ message: 'Note not found' });
+});
+
+// DELETE /notes/:id - delete a note by id
+app.delete('/notes/:id', (req, res) => {
+  const { id } = req.params;
+  delete notes[id];
+  saveNotesToFile(notes);
+
   res.status(204).end();
 });
 
