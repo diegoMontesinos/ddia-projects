@@ -1,0 +1,12 @@
+{
+  "name": "load-test-notes-api",
+  "version": "1.0.0",
+  "description": "Loading notes API with k6",
+  "main": "load-test.js",
+  "scripts": {
+    "start": "k6 run load-test.ts"
+  },
+  "devDependencies": {
+    "@types/k6": "^1.2.0"
+  }
+}
