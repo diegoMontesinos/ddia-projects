@@ -17,5 +17,10 @@ services:
 
   grafana:
     image: grafana/grafana
+    volumes:
+      - grafana-storage:/var/lib/grafana
     ports:
       - '3001:3000'
+
+volumes:
+  grafana-storage:

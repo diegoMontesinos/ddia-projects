@@ -102,7 +102,7 @@ const deleteNote = () => {
 
 export const options = {
   vus: 100,
-  duration: '30s',
+  duration: '120s',
 };
 
 export default function () {
